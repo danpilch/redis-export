@@ -64,12 +64,12 @@ cover: test-cover
 ### Release
 
 .PHONY: tag-release
-tag-release: #: Create a release tag (requires VERSION=vX.Y.Z)
+tag-release: #: Create a release tag (requires VERSION=X.Y.Z, optional RELEASE_TYPE=patch|minor|major|prerelease)
 tag-release:
 ifndef VERSION
-	$(error VERSION is required. Use: make tag-release VERSION=v0.1.0)
+	$(error VERSION is required. Use: make tag-release VERSION=0.1.0)
 endif
-	gh workflow run tag-release.yml -f version=$(VERSION)
+	gh workflow run tag-release.yml -f version=$(VERSION) -f release_type=$(or $(RELEASE_TYPE),patch)
 
 .PHONY: check-release
 check-release: #: Check latest release status

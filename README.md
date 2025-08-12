@@ -17,7 +17,7 @@ A high-performance Redis database exporter that exports all keys and values from
 
 ### Download Pre-built Binaries
 
-Download the latest release from the [GitHub Releases](https://github.com/your-username/redis-export/releases) page.
+Download the latest release from the [GitHub Releases](https://github.com/danpilch/redis-export/releases) page.
 
 Available platforms:
 - Linux (x86_64, ARM64)
@@ -30,15 +30,15 @@ Requirements:
 - Go 1.21 or later
 
 ```bash
-git clone https://github.com/your-username/redis-export.git
+git clone https://github.com/danpilch/redis-export.git
 cd redis-export
-go build -o redis-export
+make build
 ```
 
 ### Install via Go
 
 ```bash
-go install github.com/your-username/redis-export@latest
+go install github.com/danpilch/redis-export@latest
 ```
 
 ## Quick Start
@@ -300,7 +300,29 @@ Error: failed to create output file: permission denied
 
 See [CLAUDE.md](CLAUDE.md) for development setup, testing, and contribution guidelines.
 
-### Building
+### Using the Makefile
+
+```bash
+make help                  # Show all available commands
+make build                 # Build for current platform
+make build-all             # Cross-platform builds
+make test                  # Run tests
+make test-race             # Run tests with race detection
+make test-cover            # Run tests with coverage
+make cover                 # Open coverage report in browser
+make code-check            # Run linter
+make clean                 # Clean build artifacts
+```
+
+### Creating Releases
+
+```bash
+make tag-release VERSION=0.1.0                    # Create patch release
+make tag-release VERSION=0.2.0 RELEASE_TYPE=minor # Create minor release  
+make check-release                                 # Check recent releases
+```
+
+### Manual Building
 
 ```bash
 # Build for current platform
@@ -310,14 +332,6 @@ go build -o redis-export
 GOOS=linux GOARCH=amd64 go build -o redis-export-linux
 GOOS=windows GOARCH=amd64 go build -o redis-export.exe
 GOOS=darwin GOARCH=arm64 go build -o redis-export-mac
-```
-
-### Testing
-
-```bash
-go test -v                 # Run tests
-go test -v -race          # Run with race detection
-go test -v -cover         # Run with coverage
 ```
 
 ## License
@@ -334,9 +348,9 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Support
 
-- Report bugs and request features via [GitHub Issues](https://github.com/your-username/redis-export/issues)
-- For questions, start a [GitHub Discussion](https://github.com/your-username/redis-export/discussions)
+- Report bugs and request features via [GitHub Issues](https://github.com/danpilch/redis-export/issues)
+- For questions, start a [GitHub Discussion](https://github.com/danpilch/redis-export/discussions)
 
 ## Changelog
 
-See [Releases](https://github.com/your-username/redis-export/releases) for version history and changes.
+See [Releases](https://github.com/danpilch/redis-export/releases) for version history and changes.
