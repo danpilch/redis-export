@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"regexp"
 	"runtime"
+	"strconv"
 	"sync"
 	"time"
 
@@ -105,6 +107,29 @@ func (e *Exporter) processKey(ctx context.Context, key string) (*RedisEntry, err
 	return entry, nil
 }
 
+func (e *Exporter) getTotalKeyCount(ctx context.Context) (int64, error) {
+	info, err := e.client.Info(ctx, "keyspace").Result()
+	if err != nil {
+		return 0, fmt.Errorf("failed to get keyspace info: %w", err)
+	}
+
+	// Parse the keyspace info to extract key count for current database
+	dbPattern := fmt.Sprintf(`db%d:keys=(\d+)`, e.config.RedisDB)
+	re := regexp.MustCompile(dbPattern)
+	matches := re.FindStringSubmatch(info)
+
+	if len(matches) < 2 {
+		return 0, fmt.Errorf("could not find key count for database %d", e.config.RedisDB)
+	}
+
+	count, err := strconv.ParseInt(matches[1], 10, 64)
+	if err != nil {
+		return 0, fmt.Errorf("failed to parse key count: %w", err)
+	}
+
+	return count, nil
+}
+
 func (e *Exporter) worker(ctx context.Context, keysChan <-chan string, resultsChan chan<- *RedisEntry, wg *sync.WaitGroup) {
 	defer wg.Done()
 
@@ -126,10 +151,18 @@ func (e *Exporter) worker(ctx context.Context, keysChan <-chan string, resultsCh
 }
 
 func (e *Exporter) Export(ctx context.Context) error {
+	// Get total key count first
+	totalKeys, err := e.getTotalKeyCount(ctx)
+	if err != nil {
+		logrus.WithError(err).Warn("Failed to get total key count, progress tracking will be limited")
+		totalKeys = 0
+	}
+
 	logrus.WithFields(logrus.Fields{
 		"output_file": e.config.OutputFile,
 		"workers":     e.config.Workers,
 		"batch_size":  e.config.BatchSize,
+		"total_keys":  totalKeys,
 	}).Info("Starting Redis export")
 
 	file, err := os.Create(e.config.OutputFile)
@@ -213,11 +246,25 @@ func (e *Exporter) Export(ctx context.Context) error {
 		case <-ticker.C:
 			elapsed := time.Since(startTime)
 			rate := float64(processed) / elapsed.Seconds()
-			logrus.WithFields(logrus.Fields{
+
+			fields := logrus.Fields{
 				"processed_keys": processed,
 				"keys_per_sec":   math.Round(rate),
 				"elapsed":        elapsed.Round(time.Second),
-			}).Info("Export progress")
+			}
+
+			if totalKeys > 0 {
+				remaining := totalKeys - processed
+				fields["remaining_keys"] = remaining
+
+				if rate > 0 {
+					etaSeconds := float64(remaining) / rate
+					eta := time.Duration(etaSeconds) * time.Second
+					fields["eta"] = eta.Round(time.Second)
+				}
+			}
+
+			logrus.WithFields(fields).Info("Export progress")
 
 		case <-ctx.Done():
 			return ctx.Err()
