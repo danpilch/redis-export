@@ -1,0 +1,51 @@
+run:
+  timeout: 5m
+  issues-exit-code: 1
+  tests: true
+
+output:
+  format: colored-line-number
+  print-issued-lines: true
+  print-linter-name: true
+
+linters:
+  enable:
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - typecheck
+    - unused
+    - gci
+    - gofmt
+    - goimports
+    - golint
+    - gosec
+    - misspell
+    - unconvert
+    - unparam
+    - whitespace
+    
+  disable:
+    - scopelint # deprecated
+
+linters-settings:
+  gci:
+    sections:
+      - standard
+      - default
+      - prefix(github.com/redis/go-redis)
+      - prefix(github.com/spf13/cobra)
+  
+  gosec:
+    excludes:
+      - G101 # Look for hardcoded credentials (we don't have any)
+      
+  misspell:
+    locale: US
+
+issues:
+  exclude-use-default: false
+  max-issues-per-linter: 0
+  max-same-issues: 0
