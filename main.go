@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math"
 	"os"
 	"runtime"
 	"sync"
@@ -189,7 +190,7 @@ func (e *Exporter) Export(ctx context.Context) error {
 				logrus.WithFields(logrus.Fields{
 					"total_keys":       processed,
 					"total_duration":   elapsed.Round(time.Second),
-					"avg_keys_per_sec": rate,
+					"avg_keys_per_sec": math.Round(rate),
 				}).Info("Export completed successfully")
 				return nil
 			}
@@ -214,7 +215,7 @@ func (e *Exporter) Export(ctx context.Context) error {
 			rate := float64(processed) / elapsed.Seconds()
 			logrus.WithFields(logrus.Fields{
 				"processed_keys": processed,
-				"keys_per_sec":   rate,
+				"keys_per_sec":   math.Round(rate),
 				"elapsed":        elapsed.Round(time.Second),
 			}).Info("Export progress")
 
