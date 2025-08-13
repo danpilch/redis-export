@@ -15,7 +15,7 @@ import (
 
 func TestExporter_GetValueByType_String(t *testing.T) {
 	db, mock := redismock.NewClientMock()
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	exporter := &Exporter{
 		client: db,
@@ -36,7 +36,7 @@ func TestExporter_GetValueByType_String(t *testing.T) {
 
 func TestExporter_GetValueByType_List(t *testing.T) {
 	db, mock := redismock.NewClientMock()
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	exporter := &Exporter{
 		client: db,
@@ -57,7 +57,7 @@ func TestExporter_GetValueByType_List(t *testing.T) {
 
 func TestExporter_GetValueByType_Set(t *testing.T) {
 	db, mock := redismock.NewClientMock()
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	exporter := &Exporter{
 		client: db,
@@ -78,7 +78,7 @@ func TestExporter_GetValueByType_Set(t *testing.T) {
 
 func TestExporter_GetValueByType_Hash(t *testing.T) {
 	db, mock := redismock.NewClientMock()
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	exporter := &Exporter{
 		client: db,
@@ -102,7 +102,7 @@ func TestExporter_GetValueByType_Hash(t *testing.T) {
 
 func TestExporter_GetValueByType_ZSet(t *testing.T) {
 	db, mock := redismock.NewClientMock()
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	exporter := &Exporter{
 		client: db,
@@ -126,7 +126,7 @@ func TestExporter_GetValueByType_ZSet(t *testing.T) {
 
 func TestExporter_ProcessKey_WithTTL(t *testing.T) {
 	db, mock := redismock.NewClientMock()
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	exporter := &Exporter{
 		client: db,
@@ -154,7 +154,7 @@ func TestExporter_ProcessKey_WithTTL(t *testing.T) {
 
 func TestExporter_ProcessKey_NoTTL(t *testing.T) {
 	db, mock := redismock.NewClientMock()
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	exporter := &Exporter{
 		client: db,
@@ -181,7 +181,7 @@ func TestExporter_ProcessKey_NoTTL(t *testing.T) {
 
 func TestExporter_Worker(t *testing.T) {
 	db, mock := redismock.NewClientMock()
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	exporter := &Exporter{
 		client: db,
@@ -221,7 +221,7 @@ func TestExporter_Worker(t *testing.T) {
 
 func TestExporter_Worker_ContextCanceled(t *testing.T) {
 	db, mock := redismock.NewClientMock()
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	exporter := &Exporter{
 		client: db,
@@ -253,7 +253,7 @@ func TestExporter_Worker_ContextCanceled(t *testing.T) {
 
 func TestExporter_Export_MockRedis(t *testing.T) {
 	db, mock := redismock.NewClientMock()
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	config := Config{
 		OutputFile: "test_mock_export.json",
@@ -266,7 +266,7 @@ func TestExporter_Export_MockRedis(t *testing.T) {
 		config: config,
 	}
 
-	defer os.Remove(config.OutputFile)
+	defer func() { _ = os.Remove(config.OutputFile) }()
 
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()

@@ -55,7 +55,7 @@ func TestRedisEntry_JSON_NoTTL(t *testing.T) {
 
 func TestGetValueByType_UnsupportedType(t *testing.T) {
 	db, mock := redismock.NewClientMock()
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	exporter := &Exporter{
 		client: db,
@@ -90,7 +90,7 @@ func TestNewExporter(t *testing.T) {
 	}
 
 	exporter := NewExporter(config)
-	defer exporter.client.Close()
+	defer func() { _ = exporter.client.Close() }()
 
 	assert.NotNil(t, exporter.client)
 	assert.Equal(t, config, exporter.config)
@@ -98,7 +98,7 @@ func TestNewExporter(t *testing.T) {
 
 func TestExporter_Export_FileCreation(t *testing.T) {
 	db, mock := redismock.NewClientMock()
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	config := Config{
 		OutputFile: "test_export_file.json",
@@ -111,7 +111,7 @@ func TestExporter_Export_FileCreation(t *testing.T) {
 		config: config,
 	}
 
-	defer os.Remove(config.OutputFile)
+	defer func() { _ = os.Remove(config.OutputFile) }()
 
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
@@ -139,7 +139,7 @@ func TestExporter_Export_FileCreation(t *testing.T) {
 
 func TestExporter_Export_InvalidOutputPath(t *testing.T) {
 	db, mock := redismock.NewClientMock()
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	config := Config{
 		OutputFile: "/invalid/path/test.json",

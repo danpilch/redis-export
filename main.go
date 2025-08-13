@@ -169,7 +169,7 @@ func (e *Exporter) Export(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("failed to create output file: %w", err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	keysChan := make(chan string, e.config.BatchSize)
 	resultsChan := make(chan *RedisEntry, e.config.BatchSize)
@@ -186,7 +186,7 @@ func (e *Exporter) Export(ctx context.Context) error {
 	}()
 
 	encoder := json.NewEncoder(file)
-	file.WriteString("[\n")
+	_, _ = file.WriteString("[\n")
 
 	var processed int64
 	var firstEntry = true
@@ -217,7 +217,7 @@ func (e *Exporter) Export(ctx context.Context) error {
 		select {
 		case entry, ok := <-resultsChan:
 			if !ok {
-				file.WriteString("\n]")
+				_, _ = file.WriteString("\n]")
 				elapsed := time.Since(startTime)
 				rate := float64(processed) / elapsed.Seconds()
 				logrus.WithFields(logrus.Fields{
@@ -229,7 +229,7 @@ func (e *Exporter) Export(ctx context.Context) error {
 			}
 
 			if !firstEntry {
-				file.WriteString(",\n")
+				_, _ = file.WriteString(",\n")
 			} else {
 				firstEntry = false
 			}
@@ -296,7 +296,7 @@ var rootCmd = &cobra.Command{
 		})
 
 		exporter := NewExporter(config)
-		defer exporter.client.Close()
+		defer func() { _ = exporter.client.Close() }()
 
 		ctx := context.Background()
 
