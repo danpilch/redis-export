@@ -1,5 +1,7 @@
 # Redis Export
 
+[![CI](https://github.com/danpilch/redis-export/actions/workflows/ci.yml/badge.svg)](https://github.com/danpilch/redis-export/actions/workflows/ci.yml)
+
 A high-performance Redis database exporter that exports all keys and values from a Redis database to JSON format with concurrent processing.
 
 ## Features
